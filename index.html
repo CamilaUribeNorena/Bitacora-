@@ -1,0 +1,487 @@
+<!doctype html><html lang="es"><head><title>Islandia con mamá y Claudia</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0e1416">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one-screen phone app. Sticky header with the day, scrolling content, fixed bottom tab bar.
+   Dark-first: basalt ground, glacier-blue accent, moss green for "done". */
+:root{
+  --bg:#0e1416; --surface:#162022; --surface2:#1d2a2d; --line:#27383c;
+  --fg:#e9f1f2; --muted:#9db3b7; --accent:#8fd8ea; --accent-ink:#0b1d22;
+  --moss:#a7d27a; --warn:#f0c067; --shadow:0 10px 30px rgba(0,0,0,.35);
+  --display:"Young Serif",Georgia,"Times New Roman",serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"DM Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){
+  --bg:#eef4f5; --surface:#ffffff; --surface2:#e3ecee; --line:#cfdde0;
+  --fg:#12201f; --muted:#5a6f73; --accent:#1a7f99; --accent-ink:#ffffff;
+  --moss:#4f8a2a; --warn:#9a6a00; --shadow:0 8px 24px rgba(20,50,60,.12);
+  color-scheme:light;
+}}
+:root[data-theme="light"]{
+  --bg:#eef4f5; --surface:#ffffff; --surface2:#e3ecee; --line:#cfdde0;
+  --fg:#12201f; --muted:#5a6f73; --accent:#1a7f99; --accent-ink:#ffffff;
+  --moss:#4f8a2a; --warn:#9a6a00; --shadow:0 8px 24px rgba(20,50,60,.12);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;display:flex;flex-direction:column}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance;line-height:1.15}
+h1{font-size:1.75rem}
+h2{font-size:1.3rem}
+h3{font-size:1.05rem}
+p{margin:0}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+textarea,input[type=text],input[type=date]{width:100%;font:inherit;color:var(--fg);background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:.6rem .75rem}
+textarea{resize:vertical;min-height:4.5rem;line-height:1.45}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:.9rem 16px .6rem;border-bottom:1px solid var(--line)}
+header.top .row{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+header.top .clock{font-family:var(--mono);font-size:.8rem;color:var(--muted);text-align:right;line-height:1.35}
+main{flex:1;overflow-y:auto;padding-block:1rem calc(5.5rem + env(safe-area-inset-bottom,0px));padding-inline:16px}
+section.tab[hidden]{display:none}
+.stack{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1rem}
+.card.hero{background:linear-gradient(160deg,var(--surface) 0%,var(--surface2) 100%);box-shadow:var(--shadow)}
+.card h2{margin-bottom:.35rem}
+.big{font-family:var(--display);font-size:1.45rem;line-height:1.25;margin:.4rem 0 .8rem}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:.6rem}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:.5rem .85rem;border-radius:999px;border:1px solid var(--line);background:var(--surface2);font-weight:600;font-size:.9rem}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.done{background:var(--moss);color:var(--accent-ink);border-color:var(--moss)}
+.btn.small{padding:.3rem .65rem;font-size:.8rem}
+.check{display:flex;gap:12px;align-items:flex-start;padding:.6rem 0;border-top:1px solid var(--line)}
+.check:first-of-type{border-top:0}
+.check input{width:20px;height:20px;margin-top:3px;accent-color:var(--moss);flex:none}
+.check label{flex:1;min-width:0}
+.check.on label{color:var(--muted);text-decoration:line-through}
+.check .note{display:block;font-size:.82rem;color:var(--muted)}
+.field{display:flex;flex-direction:column;gap:6px;margin-top:.8rem}
+.field label{font-weight:600;font-size:.92rem}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{padding:.35rem .7rem;border-radius:999px;border:1px solid var(--line);font-family:var(--mono);font-size:.8rem}
+.pill.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.day{display:grid;grid-template-columns:3.4rem 1fr;gap:12px;align-items:start}
+.day .n{font-family:var(--mono);font-size:.75rem;color:var(--muted);line-height:1.3;padding-top:.2rem}
+.day .n b{display:block;font-family:var(--display);font-size:1.5rem;font-weight:400;color:var(--fg)}
+.day.today{border-color:var(--accent)}
+.day input[type=text]{font-weight:600}
+.day .meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:.5rem}
+.progress{height:6px;background:var(--surface2);border-radius:999px;overflow:hidden;margin-top:.5rem}
+.progress i{display:block;height:100%;background:var(--moss);width:0;transition:width .4s}
+.info dt{font-weight:600;margin-top:.7rem}
+.info dd{margin:0;color:var(--muted)}
+.info a{color:var(--accent)}
+.status{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-top:.3rem}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+nav.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:.4rem 0;border-radius:10px;font-size:.72rem;font-weight:600;color:var(--muted)}
+nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs button.on{color:var(--accent)}
+.journal-nav{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.journal-nav button{flex:none;padding:.4rem .75rem;border-radius:10px;border:1px solid var(--line);font-family:var(--mono);font-size:.8rem}
+.journal-nav button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.journal-nav button.has{border-color:var(--moss)}
+.toast{position:fixed;left:50%;bottom:calc(5.6rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:.5rem .9rem;border-radius:999px;font-size:.85rem;opacity:0;transition:opacity .25s;pointer-events:none;z-index:9}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+</style>
+
+</head><body>
+<header class="top">
+  <div class="row">
+    <div>
+      <div class="eyebrow" id="hdr-eyebrow">Islandia · octubre 2026</div>
+      <h1 id="hdr-title">Islandia con mamá y Claudia</h1>
+    </div>
+    <div class="clock" id="clock"></div>
+  </div>
+</header>
+
+<main>
+  <!-- HOY -->
+  <section class="tab" id="tab-hoy">
+    <div class="stack">
+      <div class="card hero" id="hoy-card"></div>
+      <div class="card" id="hoy-pregunta"></div>
+      <div class="card" id="hoy-reto"></div>
+      <div class="card">
+        <div class="eyebrow">Progreso del viaje</div>
+        <div id="hoy-progreso"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAN -->
+  <section class="tab" id="tab-plan" hidden>
+    <div class="stack">
+      <div class="card">
+        <div class="eyebrow">Fechas</div>
+        <div class="field"><label for="start-date">Primer día en Islandia</label><input type="date" id="start-date"></div>
+        <p class="muted" style="margin-top:.6rem;font-size:.88rem">El plan de abajo es una ruta sugerida (sur de Islandia). Escribe encima, borra días o agrega los tuyos; se guarda solo.</p>
+      </div>
+      <div id="days" class="stack"></div>
+      <div class="actions"><button class="btn" id="add-day">+ Agregar día</button></div>
+    </div>
+  </section>
+
+  <!-- MAMÁ -->
+  <section class="tab" id="tab-mama" hidden>
+    <div class="stack">
+      <div class="card">
+        <div class="eyebrow">Lista 200 %</div>
+        <h2>Lo que no se nos puede escapar</h2>
+        <p class="muted" style="font-size:.88rem">Marca cada una cuando la vivan las tres. Agrega las tuyas abajo.</p>
+        <div class="progress"><i id="bucket-bar"></i></div>
+        <div id="bucket" style="margin-top:.6rem"></div>
+        <div class="field"><label for="bucket-new">Agregar a la lista</label>
+          <div style="display:flex;gap:8px"><input type="text" id="bucket-new" placeholder="Ej. Que mamá maneje un tramo"><button class="btn primary" id="bucket-add">Añadir</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="eyebrow">Preguntas para mamá y Claudia</div>
+        <h2>Una conversación por día</h2>
+        <p class="muted" style="font-size:.88rem">Unas son para mamá, otras para Claudia y otras para las dos hermanas juntas. Cada día te sale una en Hoy.</p>
+        <div id="preguntas" style="margin-top:.6rem"></div>
+      </div>
+      <div class="card">
+        <div class="eyebrow">Retos de presencia</div>
+        <h2>Cosas pequeñas que cambian el viaje</h2>
+        <div id="retos" style="margin-top:.6rem"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIARIO -->
+  <section class="tab" id="tab-diario" hidden>
+    <div class="stack">
+      <div class="card">
+        <div class="eyebrow">Diario</div>
+        <h2>Cinco minutos antes de dormir</h2>
+        <div class="journal-nav" id="journal-nav" style="margin-top:.7rem"></div>
+        <div id="journal-form"></div>
+      </div>
+      <div class="card" id="journal-review"></div>
+    </div>
+  </section>
+
+  <!-- ÚTIL -->
+  <section class="tab" id="tab-util" hidden>
+    <div class="stack">
+      <div class="card">
+        <div class="eyebrow">Islandia en octubre</div>
+        <dl class="info">
+          <dt>Hora</dt><dd>Islandia va en GMT todo el año: 5 horas adelante de Colombia. El reloj de arriba muestra las dos.</dd>
+          <dt>Luz</dt><dd>Amanece hacia las 8:00–8:30 y anochece hacia las 18:15–18:45 según avanza el mes. Las excursiones largas se planean con eso en mente.</dd>
+          <dt>Auroras</dt><dd>Se necesitan tres cosas: noche, cielo despejado y actividad solar. Revisa el pronóstico de nubes y el índice Kp en <a href="https://en.vedur.is/weather/forecasts/aurora/" target="_blank" rel="noopener">vedur.is</a>. Si está despejado, salgan de la ciudad aunque haga frío; entre 21:00 y 1:00 suele ser lo mejor.</dd>
+          <dt>Clima y carretera</dt><dd><a href="https://en.vedur.is/" target="_blank" rel="noopener">vedur.is</a> para viento y lluvia, <a href="https://www.road.is/" target="_blank" rel="noopener">road.is</a> para el estado de las vías y <a href="https://safetravel.is/" target="_blank" rel="noopener">safetravel.is</a> para alertas. Con ráfagas fuertes, abran las puertas del carro sujetándolas: el viento las arranca.</dd>
+          <dt>Emergencias</dt><dd>112 (gratis, atienden en inglés).</dd>
+          <dt>Dinero</dt><dd>Corona islandesa (ISK). Casi todo se paga con tarjeta, incluso baños públicos. No se deja propina.</dd>
+          <dt>Agua y comida</dt><dd>El agua de la llave es de las mejores del mundo, no compren embotellada. Prueben la kjötsúpa (sopa de cordero), el skyr y el pan de centeno que hornean con calor geotérmico.</dd>
+          <dt>Ropa</dt><dd>Capas: térmica, polar, chaqueta impermeable y cortavientos, gorro, guantes y botas con suela. En octubre lo normal son 2–8 °C con viento; la sensación es menor.</dd>
+          <dt>Playas negras</dt><dd>En Reynisfjara nunca le den la espalda al mar: las "olas furtivas" llegan más lejos de lo que parece. Quédense lejos de la orilla mojada.</dd>
+          <dt>Aguas termales</dt><dd>Se entra duchado sin traje de baño antes de ponérselo; es obligatorio y nadie lo ve raro. Sky Lagoon y Blue Lagoon piden reserva con anticipación.</dd>
+        </dl>
+      </div>
+      <div class="card">
+        <div class="eyebrow">Palabras</div>
+        <dl class="info">
+          <dt>Takk / Takk fyrir</dt><dd>Gracias / muchas gracias.</dd>
+          <dt>Góðan daginn</dt><dd>Buenos días.</dd>
+          <dt>Skál</dt><dd>Salud (para brindar).</dd>
+          <dt>foss · jökull · vík · fjörður</dt><dd>cascada · glaciar · bahía · fiordo. Así se leen los nombres del mapa.</dd>
+        </dl>
+      </div>
+      <p class="status" id="save-status"></p>
+    </div>
+  </section>
+</main>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="hoy" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Hoy</button>
+  <button data-tab="plan"><svg viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Plan</button>
+  <button data-tab="mama"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg>Mamá</button>
+  <button data-tab="diario"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Diario</button>
+  <button data-tab="util"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>Útil</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+// ---------- Content ----------
+const PREGUNTAS = [
+  ["mamá","¿Cuál es el recuerdo más feliz que tienes de cuando tenías mi edad?"],
+  ["las dos","¿Cómo eran ustedes dos de niñas? ¿Quién mandaba?"],
+  ["mamá","¿Qué soñabas ser a los veinte? ¿Qué pasó con ese sueño?"],
+  ["Claudia","¿Cómo era mi mamá de niña, vista por ti?"],
+  ["mamá","¿Cuál fue el día más difícil de tu vida y qué te sostuvo?"],
+  ["las dos","¿Cuál fue la pelea más grande que tuvieron y cómo volvieron?"],
+  ["mamá","¿Qué es algo que nunca me has contado porque pensaste que no me interesaría?"],
+  ["Claudia","¿Qué es lo que más admiras de tu hermana que ella no sabe?"],
+  ["mamá","¿Qué fue lo primero que pensaste cuando nací?"],
+  ["las dos","¿Qué secreto se guardaron de sus papás que ya se puede contar?"],
+  ["mamá","¿Qué te hubiera gustado hacer distinto como mamá?"],
+  ["Claudia","¿Qué viaje recuerdas más y por qué?"],
+  ["las dos","¿Cómo era la casa donde crecieron? ¿Qué sonaba, qué olía?"],
+  ["mamá","¿Quién fue la persona que más te enseñó, fuera de la familia?"],
+  ["Claudia","¿Qué te dio miedo de joven que ya no te da miedo?"],
+  ["mamá","¿De qué te sientes más orgullosa que casi nadie sabe?"],
+  ["las dos","¿En qué se parecen más y en qué son opuestas?"],
+  ["mamá","¿Qué aprendiste del amor que quisieras que yo supiera antes que tú?"],
+  ["Claudia","¿Qué sabes tú de mi mamá que yo no sé?"],
+  ["las dos","Si pudieran volver a un día de la infancia, solo para vivirlo otra vez, ¿cuál sería?"],
+  ["mamá","¿Qué te gustaría que recordara de ti dentro de cincuenta años?"],
+  ["Claudia","¿Qué quisieras hacer en los próximos diez años que todavía no has hecho?"],
+  ["mamá","¿Qué crees que heredé de ti? ¿Y qué de nadie?"],
+  ["las dos","¿Qué canción las devuelve a una misma época?"],
+  ["mamá","¿Qué te hace reír que a nadie más le parece gracioso?"],
+  ["Claudia","¿De qué te sientes más orgullosa?"],
+  ["las dos","¿Qué quieren hacer juntas que nunca han hecho, además de este viaje?"],
+  ["mamá","¿Qué es lo que más te gusta de la vida que tienes hoy?"]
+];
+const RETOS = [
+  "Que mamá elija el plan de la mañana, sin opinar.",
+  "Tómale a cada una una foto sin que pose, mirando algo que le guste.",
+  "Cuéntale a mamá algo tuyo que no sabe.",
+  "Caminen diez minutos en silencio, las tres.",
+  "Pídele a una de ellas que te enseñe algo que sabe hacer y tú no.",
+  "Dile a cada una algo concreto que admiras de ella. Concreto, no \"eres muy buena\".",
+  "Dos horas sin celular las tres. Guárdenlos en la maleta.",
+  "Prueben un plato que ninguna ha probado y califíquenlo.",
+  "Vean el atardecer las tres, sin fotos durante cinco minutos.",
+  "Cómprale a cada una un recuerdo pequeño sin que lo vean. Dáselos el último día.",
+  "Pregúntales qué quieren hacer hoy que tú no habrías planeado, y háganlo.",
+  "Escribe en el diario una frase que una de ellas dijo hoy, textual.",
+  "Déjalas solas una hora: que las hermanas caminen o tomen algo sin ti.",
+  "Pídeles que te cuenten la misma historia de la infancia, por separado, y compara.",
+  "Una foto de las tres en el mismo sitio cada día, misma pose.",
+  "Pregúntale a Claudia cómo era tu mamá a tu edad.",
+  "Deja que Claudia elija el restaurante de hoy.",
+  "Cuéntales a las dos qué significa este viaje para ti. Dilo en voz alta."
+];
+const BUCKET = [
+  ["auroras","Ver auroras boreales","Revisar nubes y Kp en vedur.is cada tarde"],
+  ["termal","Meterse a un agua termal con frío afuera","Sky Lagoon, Blue Lagoon o una piscina de pueblo"],
+  ["cascada","Pasar por detrás de una cascada","Seljalandsfoss; llevar impermeable"],
+  ["negra","Pisar la playa negra de Reynisfjara","De espaldas al mar nunca"],
+  ["geiser","Ver a Strokkur estallar","Cada 5–10 minutos; esperar tres"],
+  ["placas","Caminar entre dos continentes","Þingvellir, grieta de Almannagjá"],
+  ["icebergs","Ver icebergs flotando","Jökulsárlón y la playa de diamantes"],
+  ["caballos","Saludar a un caballo islandés","Hay en casi toda la ruta 1"],
+  ["sopa","Comer kjötsúpa en un día frío","Sopa de cordero, la de las paradas de carretera es buena"],
+  ["hotdog","Hot dog de Bæjarins Beztu","Con todo: \"eina með öllu\""],
+  ["pan","Pan de centeno horneado en la tierra","Laugarvatn Fontana lo saca del suelo"],
+  ["sueter","Comprar un lopapeysa","Suéter islandés de lana; que ella elija el tuyo y tú el de ella"],
+  ["iglesia","Subir a Hallgrímskirkja","Vista de los techos de colores de Reykjavík"],
+  ["libre","Un día sin ningún plan","Dejar que el día decida"],
+  ["hermanas","Las hermanas juntas en el agua termal","Foto desde afuera, que no se den cuenta"],
+  ["tres","Foto de las tres frente a una cascada","Con trípode o pidiéndole a alguien"],
+  ["brindis","Un brindis de las tres","Skál. Por el viaje y por las que no están"]
+];
+const DAYS_TEMPLATE = [
+  ["Llegada","Keflavík → Reykjavík","Recoger carro o transfer, llegar al hospedaje, caminata corta por Laugavegur y el puerto viejo. Cena temprano; el cambio de hora pesa."],
+  ["Círculo Dorado","Þingvellir · Geysir · Gullfoss","Salir a las 8:30 con la luz. Þingvellir (grieta de las placas), Strokkur, Gullfoss. Volver por Laugarvatn Fontana para el pan de centeno."],
+  ["Costa sur","Seljalandsfoss · Skógafoss · Reynisfjara · Vík","Cascadas en la mañana, playa negra a media tarde, dormir en Vík. Si está despejado, buscar auroras desde el hospedaje."],
+  ["Glaciares","Vík → Jökulsárlón · Diamond Beach","Tramo largo (2,5 h). Laguna de icebergs, playa de diamantes, Fjallsárlón más tranquila. Dormir cerca de Höfn o volver a Vík."],
+  ["Regreso suave","Costa sur → Reykjavík","Paradas que quedaron pendientes, caballos en el camino, Skógar si no alcanzó. Noche en Reykjavík."],
+  ["Reykjavík y termales","Sky Lagoon o Blue Lagoon","Mañana en Hallgrímskirkja y Harpa, tarde en el agua caliente. Cena buena."],
+  ["Día libre","Snæfellsnes o lo que ella quiera","Península de Snæfellsnes (Kirkjufell) si hay energía; si no, un día sin plan."],
+  ["Vuelo","Reykjavík → Keflavík","Desayuno largo, comprar el suéter si falta, aeropuerto con tiempo."]
+];
+
+// ---------- State ----------
+const DEFAULT = ()=>({
+  start:"2026-10-08",
+  days: DAYS_TEMPLATE.map(d=>({title:d[0],place:d[1],plan:d[2]})),
+  bucket:{}, bucketCustom:[], qDone:{}, retoDone:{}, journal:{}
+});
+let state = DEFAULT();
+let db = null, saving=false, pendingSave=false, saveTimer=null, loaded=false;
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function lsRead(){ try{ const r=localStorage.getItem("islandia-mama"); return r?JSON.parse(r):null }catch(e){ return null } }
+function lsWrite(){ try{ localStorage.setItem("islandia-mama",JSON.stringify(state)) }catch(e){} }
+
+function merge(data){ if(!data||typeof data!=="object") return; state = Object.assign(DEFAULT(), data); if(!Array.isArray(state.days)||!state.days.length) state.days=DEFAULT().days; }
+
+function scheduleSave(){
+  lsWrite();
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(doSave,700);
+}
+async function doSave(){
+  if(!db){ setStatus("Guardado en este dispositivo"); return; }
+  if(saving){ pendingSave=true; return; }
+  saving=true;
+  try{ await db.doc("trip/state").set(JSON.parse(JSON.stringify(state))); setStatus("Guardado en la nube · "+new Date().toLocaleTimeString("es-CO",{hour:"2-digit",minute:"2-digit"})); }
+  catch(e){ setStatus("No se pudo guardar en la nube; quedó en este dispositivo"); }
+  saving=false;
+  if(pendingSave){ pendingSave=false; doSave(); }
+}
+function setStatus(t){ $("#save-status").textContent=t; }
+function toast(t){ const el=$("#toast"); el.textContent=t; el.classList.add("show"); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),1600); }
+
+// ---------- Dates ----------
+function parseDate(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
+function fmtDate(d,opts){ return d.toLocaleDateString("es-CO",opts||{weekday:"short",day:"numeric",month:"short"}); }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function dayIndexToday(){
+  const start=parseDate(state.start); const now=new Date(); const t=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  return Math.round((t-start)/86400000);
+}
+function tickClock(){
+  const now=new Date();
+  const co=now.toLocaleTimeString("es-CO",{hour:"2-digit",minute:"2-digit",timeZone:"America/Bogota"});
+  const is=now.toLocaleTimeString("es-CO",{hour:"2-digit",minute:"2-digit",timeZone:"Atlantic/Reykjavik"});
+  $("#clock").innerHTML="Islandia <b>"+is+"</b><br>Colombia "+co;
+}
+
+// ---------- Render ----------
+function renderAll(){ renderHoy(); renderPlan(); renderMama(); renderDiario(); }
+
+function renderHoy(){
+  const idx=dayIndexToday(); const n=state.days.length; const start=parseDate(state.start);
+  let html="";
+  if(idx<0){
+    html=`<div class="eyebrow">Faltan ${-idx} día${idx===-1?"":"s"}</div><h2>El ${fmtDate(start,{weekday:"long",day:"numeric",month:"long"})} aterrizan</h2><p class="muted">Mientras tanto: revisa el plan, agrega a la lista 200 % lo que a tu mamá le ilusiona, y pregúntales a las dos qué les ilusiona: el viaje es de las tres.</p>`;
+  } else if(idx>=n){
+    const done=Object.values(state.bucket).filter(Boolean).length;
+    html=`<div class="eyebrow">Después del viaje</div><h2>Ya volvieron las tres</h2><p class="muted">Vivieron ${done} cosas de la lista y escribieron ${Object.keys(state.journal).length} días de diario. Léanlo las tres un domingo.</p>`;
+  } else {
+    const d=state.days[idx];
+    html=`<div class="eyebrow">Día ${idx+1} de ${n} · ${fmtDate(addDays(start,idx))}</div><h2>${esc(d.title)||"Sin título"}</h2><p class="muted" style="margin-top:.2rem">${esc(d.place)}</p><p style="margin-top:.6rem">${esc(d.plan)}</p>`;
+  }
+  $("#hoy-card").innerHTML=html;
+
+  const qi=((idx%PREGUNTAS.length)+PREGUNTAS.length)%PREGUNTAS.length;
+  const ri=((idx%RETOS.length)+RETOS.length)%RETOS.length;
+  const qd=!!state.qDone[qi], rd=!!state.retoDone[ri];
+  $("#hoy-pregunta").innerHTML=`<div class="eyebrow">Pregunta de hoy · para ${esc(PREGUNTAS[qi][0])}</div><p class="big">${esc(PREGUNTAS[qi][1])}</p><div class="actions"><button class="btn ${qd?"done":"primary"}" data-q="${qi}">${qd?"Ya se la hice ✓":"Ya se la hice"}</button><button class="btn" id="q-other">Otra</button></div>`;
+  $("#hoy-reto").innerHTML=`<div class="eyebrow">Reto de presencia</div><p class="big">${esc(RETOS[ri])}</p><div class="actions"><button class="btn ${rd?"done":"primary"}" data-r="${ri}">${rd?"Hecho ✓":"Hecho"}</button></div>`;
+
+  const bTotal=BUCKET.length+state.bucketCustom.length;
+  const bDone=Object.values(state.bucket).filter(Boolean).length;
+  const jDone=Object.keys(state.journal).filter(k=>{const j=state.journal[k];return j&&(j.best||j.mom||j.moment)}).length;
+  const qDoneN=Object.values(state.qDone).filter(Boolean).length;
+  $("#hoy-progreso").innerHTML=`<div class="pills" style="margin-top:.5rem"><span class="pill">Lista ${bDone}/${bTotal}</span><span class="pill">Preguntas ${qDoneN}</span><span class="pill">Diario ${jDone}/${n}</span></div><div class="progress"><i style="width:${bTotal?Math.round(bDone/bTotal*100):0}%"></i></div>`;
+}
+
+function renderPlan(){
+  $("#start-date").value=state.start;
+  const start=parseDate(state.start); const today=dayIndexToday();
+  $("#days").innerHTML=state.days.map((d,i)=>`
+    <div class="card day${i===today?" today":""}" data-i="${i}">
+      <div class="n"><b>${i+1}</b>${fmtDate(addDays(start,i))}</div>
+      <div style="min-width:0">
+        <input type="text" id="d-title-${i}" data-f="title" value="${esc(d.title)}" placeholder="Título del día" aria-label="Título del día ${i+1}">
+        <input type="text" id="d-place-${i}" data-f="place" value="${esc(d.place)}" placeholder="Dónde" style="margin-top:6px;font-weight:400" aria-label="Lugar del día ${i+1}">
+        <textarea id="d-plan-${i}" data-f="plan" placeholder="Plan" style="margin-top:6px" aria-label="Plan del día ${i+1}">${esc(d.plan)}</textarea>
+        <div class="meta"><span class="eyebrow">${i===today?"Hoy":""}</span><button class="btn small" data-del="${i}">Borrar día</button></div>
+      </div>
+    </div>`).join("");
+}
+
+function renderMama(){
+  const items=BUCKET.map(b=>({id:b[0],t:b[1],n:b[2]})).concat(state.bucketCustom.map((t,i)=>({id:"c"+i,t,n:"",custom:i})));
+  const done=items.filter(it=>state.bucket[it.id]).length;
+  $("#bucket-bar").style.width=(items.length?Math.round(done/items.length*100):0)+"%";
+  $("#bucket").innerHTML=items.map(it=>`<div class="check${state.bucket[it.id]?" on":""}"><input type="checkbox" id="b-${it.id}" data-b="${it.id}" ${state.bucket[it.id]?"checked":""}><label for="b-${it.id}">${esc(it.t)}${it.n?`<span class="note">${esc(it.n)}</span>`:""}</label>${it.custom!==undefined?`<button class="btn small" data-bdel="${it.custom}" aria-label="Quitar">×</button>`:""}</div>`).join("");
+  $("#preguntas").innerHTML=PREGUNTAS.map((q,i)=>`<div class="check${state.qDone[i]?" on":""}"><input type="checkbox" id="q-${i}" data-q2="${i}" ${state.qDone[i]?"checked":""}><label for="q-${i}">${esc(q[1])}<span class="note">Para ${esc(q[0])}</span></label></div>`).join("");
+  $("#retos").innerHTML=RETOS.map((r,i)=>`<div class="check${state.retoDone[i]?" on":""}"><input type="checkbox" id="r-${i}" data-r2="${i}" ${state.retoDone[i]?"checked":""}><label for="r-${i}">${esc(r)}</label></div>`).join("");
+}
+
+let journalDay=null;
+function renderDiario(){
+  const n=state.days.length; const today=dayIndexToday();
+  if(journalDay===null) journalDay=Math.min(Math.max(today,0),n-1);
+  if(journalDay>=n) journalDay=n-1;
+  const start=parseDate(state.start);
+  $("#journal-nav").innerHTML=state.days.map((d,i)=>{const j=state.journal[i];const has=j&&(j.best||j.mom||j.moment);return `<button data-j="${i}" class="${i===journalDay?"on":""}${has?" has":""}">Día ${i+1}</button>`}).join("");
+  const j=state.journal[journalDay]||{};
+  const d=state.days[journalDay]||{};
+  $("#journal-form").innerHTML=`
+    <p class="muted" style="margin-top:.7rem;font-size:.88rem">Día ${journalDay+1} · ${fmtDate(addDays(start,journalDay))} · ${esc(d.title||"")}</p>
+    <div class="field"><label for="j-best">Lo mejor del día</label><textarea id="j-best" data-jf="best">${esc(j.best)}</textarea></div>
+    <div class="field"><label for="j-mom">Algo que mamá o Claudia dijo o hizo que no quiero olvidar</label><textarea id="j-mom" data-jf="mom">${esc(j.mom)}</textarea></div>
+    <div class="field"><label for="j-moment">El momento 200 % (cuando se me olvidó todo lo demás)</label><textarea id="j-moment" data-jf="moment">${esc(j.moment)}</textarea></div>
+    <div class="field"><label>¿Qué tan presente estuve hoy?</label><div class="pills" id="presence">${[1,2,3,4,5].map(v=>`<button class="pill${j.presence===v?" on":""}" data-p="${v}">${v}</button>`).join("")}</div><span class="muted" style="font-size:.82rem">1 = en el celular y en la empresa · 5 = solo aquí, con ellas</span></div>`;
+  const entries=Object.keys(state.journal).map(Number).sort((a,b)=>a-b).filter(k=>{const e=state.journal[k];return e&&(e.best||e.mom||e.moment)});
+  $("#journal-review").innerHTML=`<div class="eyebrow">Lo que ya escribiste</div>`+(entries.length?entries.map(k=>{const e=state.journal[k];return `<div style="margin-top:.8rem"><h3>Día ${k+1}${e.presence?` · presencia ${e.presence}/5`:""}</h3>${e.best?`<p style="margin-top:.2rem">${esc(e.best)}</p>`:""}${e.mom?`<p class="muted" style="margin-top:.2rem">Ellas: ${esc(e.mom)}</p>`:""}${e.moment?`<p style="margin-top:.2rem"><i>${esc(e.moment)}</i></p>`:""}</div>`}).join(""):`<p class="muted" style="margin-top:.4rem">Todavía nada. Con tres líneas por noche alcanza; el valor está en leerlo dentro de diez años.</p>`);
+}
+
+// ---------- Events ----------
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  if(b.dataset.tab){ showTab(b.dataset.tab); return; }
+  if(b.dataset.q!==undefined){ state.qDone[b.dataset.q]=!state.qDone[b.dataset.q]; scheduleSave(); renderHoy(); renderMama(); if(state.qDone[b.dataset.q]) toast("Guardada. Ahora escúchala."); return; }
+  if(b.id==="q-other"){ const left=PREGUNTAS.map((q,i)=>i).filter(i=>!state.qDone[i]); const pick=left.length?left[Math.floor(Math.random()*left.length)]:Math.floor(Math.random()*PREGUNTAS.length); $("#hoy-pregunta").querySelector(".big").textContent=PREGUNTAS[pick][1]; $("#hoy-pregunta").querySelector(".eyebrow").textContent="Pregunta de hoy · para "+PREGUNTAS[pick][0]; const btn=$("#hoy-pregunta").querySelector("[data-q]"); btn.dataset.q=pick; btn.className="btn primary"; btn.textContent="Ya se la hice"; return; }
+  if(b.dataset.r!==undefined){ state.retoDone[b.dataset.r]=!state.retoDone[b.dataset.r]; scheduleSave(); renderHoy(); renderMama(); return; }
+  if(b.id==="add-day"){ state.days.push({title:"",place:"",plan:""}); scheduleSave(); renderPlan(); renderDiario(); window.scrollTo(0,0); const last=$("#days").lastElementChild; if(last) last.scrollIntoView({block:"center"}); return; }
+  if(b.dataset.del!==undefined){ const i=+b.dataset.del; if(b.textContent!=="¿Seguro?"){ b.textContent="¿Seguro?"; setTimeout(()=>{b.textContent="Borrar día"},2500); return; } state.days.splice(i,1); const nj={}; Object.keys(state.journal).forEach(k=>{k=+k; if(k<i) nj[k]=state.journal[k]; else if(k>i) nj[k-1]=state.journal[k];}); state.journal=nj; if(!state.days.length) state.days.push({title:"",place:"",plan:""}); scheduleSave(); renderAll(); return; }
+  if(b.id==="bucket-add"){ const v=$("#bucket-new").value.trim(); if(!v) return; state.bucketCustom.push(v); $("#bucket-new").value=""; scheduleSave(); renderMama(); renderHoy(); return; }
+  if(b.dataset.bdel!==undefined){ const i=+b.dataset.bdel; state.bucketCustom.splice(i,1); const nb={}; Object.keys(state.bucket).forEach(k=>{ if(!k.startsWith("c")) nb[k]=state.bucket[k]; else { const ci=+k.slice(1); if(ci<i) nb[k]=state.bucket[k]; else if(ci>i) nb["c"+(ci-1)]=state.bucket[k]; } }); state.bucket=nb; scheduleSave(); renderMama(); renderHoy(); return; }
+  if(b.dataset.j!==undefined){ journalDay=+b.dataset.j; renderDiario(); return; }
+  if(b.dataset.p!==undefined){ const j=state.journal[journalDay]||(state.journal[journalDay]={}); j.presence=(j.presence===+b.dataset.p)?null:+b.dataset.p; scheduleSave(); renderDiario(); return; }
+});
+document.addEventListener("change",e=>{
+  const t=e.target;
+  if(t.id==="start-date"&&t.value){ state.start=t.value; scheduleSave(); renderAll(); return; }
+  if(t.dataset.b){ state.bucket[t.dataset.b]=t.checked; scheduleSave(); renderMama(); renderHoy(); if(t.checked) toast("Vivido ✓"); return; }
+  if(t.dataset.q2!==undefined){ state.qDone[t.dataset.q2]=t.checked; scheduleSave(); renderMama(); renderHoy(); return; }
+  if(t.dataset.r2!==undefined){ state.retoDone[t.dataset.r2]=t.checked; scheduleSave(); renderMama(); renderHoy(); return; }
+});
+document.addEventListener("input",e=>{
+  const t=e.target;
+  const day=t.closest(".day");
+  if(day&&t.dataset.f){ state.days[+day.dataset.i][t.dataset.f]=t.value; scheduleSave(); return; }
+  if(t.dataset.jf){ const j=state.journal[journalDay]||(state.journal[journalDay]={}); j[t.dataset.jf]=t.value; scheduleSave(); return; }
+});
+document.addEventListener("input",e=>{ const t=e.target; if(t.dataset.jf||(t.dataset.f&&t.closest(".day"))) clearTimeout(t._rt), t._rt=setTimeout(()=>{ if(t.dataset.jf) renderJournalNavOnly(); },900); });
+function renderJournalNavOnly(){ const nav=$("#journal-nav"); if(!nav) return; nav.querySelectorAll("button").forEach(b=>{const j=state.journal[+b.dataset.j]; b.classList.toggle("has",!!(j&&(j.best||j.mom||j.moment)));}); }
+document.addEventListener("keydown",e=>{ if(e.key==="Enter"&&e.target.id==="bucket-new"){ e.preventDefault(); $("#bucket-add").click(); } });
+
+function showTab(name){
+  document.querySelectorAll("section.tab").forEach(s=>s.hidden=(s.id!=="tab-"+name));
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===name));
+  document.querySelector("main").scrollTop=0;
+  try{ localStorage.setItem("islandia-mama-tab",name) }catch(e){}
+}
+
+// ---------- Boot ----------
+merge(lsRead());
+renderAll(); tickClock(); setInterval(tickClock,30000);
+setStatus("Todo se guarda en este teléfono. Funciona sin internet una vez instalada.");
+try{ const t=localStorage.getItem("islandia-mama-tab"); if(t&&$("#tab-"+t)) showTab(t); }catch(e){}
+(async()=>{
+  try{
+    return;
+    db=await window.claude.use("db");
+    if(!db){ setStatus("Guardado solo en este dispositivo (sin nube)"); return; }
+    const ref=db.doc("trip/state");
+    let first=true;
+    ref.onSnapshot(snap=>{
+      if(snap.metadata.hasPendingWrites) return;
+      if(snap.exists){
+        const remote=JSON.stringify(Object.assign(DEFAULT(),snap.data()));
+        if(remote!==JSON.stringify(state)&&!document.activeElement.matches("input,textarea")){ merge(snap.data()); renderAll(); }
+        setStatus("Sincronizado con la nube");
+      }
+      else if(first){ doSave(); }
+      first=false;
+    },err=>{ setStatus("Sin nube ahora mismo; guardando en este dispositivo"); });
+  }catch(e){ setStatus("Guardado solo en este dispositivo"); }
+})();
+})();
+</script>
+
+</body></html>
