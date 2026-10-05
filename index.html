@@ -139,7 +139,7 @@ nav.tabs button.on{color:var(--accent)}
       <div class="card">
         <div class="eyebrow">Lista 200 %</div>
         <h2>Lo que no se nos puede escapar</h2>
-        <p class="muted" style="font-size:.88rem">Marca cada una cuando la vivan las tres. Agrega las tuyas abajo.</p>
+        <p class="muted" style="font-size:.88rem">Marca cada una cuando la vivan. Agrega las tuyas abajo.</p>
         <div class="progress"><i id="bucket-bar"></i></div>
         <div id="bucket" style="margin-top:.6rem"></div>
         <div class="field"><label for="bucket-new">Agregar a la lista</label>
@@ -275,21 +275,23 @@ const RETOS = [
   "Que mamá elija el plan de la mañana, sin opinar.",
   "Tómale a cada una una foto sin que pose, mirando algo que le guste.",
   "Cuéntale a mamá algo tuyo que no sabe.",
-  "Caminen diez minutos en silencio, las tres.",
+  "Caminen diez minutos en silencio, tú y mamá.",
   "Pídele a una de ellas que te enseñe algo que sabe hacer y tú no.",
   "Dile a cada una algo concreto que admiras de ella. Concreto, no \"eres muy buena\".",
-  "Dos horas sin celular las tres. Guárdenlos en la maleta.",
+  "Dos horas sin celular. Guárdenlos en la maleta.",
   "Prueben un plato que ninguna ha probado y califíquenlo.",
-  "Vean el atardecer las tres, sin fotos durante cinco minutos.",
+  "Vean el atardecer juntas, sin fotos durante cinco minutos.",
   "Cómprale a cada una un recuerdo pequeño sin que lo vean. Dáselos el último día.",
   "Pregúntales qué quieren hacer hoy que tú no habrías planeado, y háganlo.",
   "Escribe en el diario una frase que una de ellas dijo hoy, textual.",
   "Déjalas solas una hora: que las hermanas caminen o tomen algo sin ti.",
   "Pídeles que te cuenten la misma historia de la infancia, por separado, y compara.",
-  "Una foto de las tres en el mismo sitio cada día, misma pose.",
+  "Una foto de las cuatro en el mismo sitio cada día, misma pose.",
   "Pregúntale a Claudia cómo era tu mamá a tu edad.",
   "Deja que Claudia elija el restaurante de hoy.",
-  "Cuéntales a las dos qué significa este viaje para ti. Dilo en voz alta."
+  "Pregúntale a Elvia cómo se hicieron amigas con Claudia; seguro mamá tampoco sabe la versión completa.",
+  "Una comida en la que mamá y tú se sienten juntas y dejen a Claudia con su amiga: a cada una su compañía.",
+  "Cuéntales a mamá y a Claudia, a solas, qué significa este viaje para ti. Dilo en voz alta."
 ];
 const BUCKET = [
   ["auroras","Ver auroras boreales","Revisar nubes y Kp en vedur.is cada tarde"],
@@ -307,8 +309,8 @@ const BUCKET = [
   ["iglesia","Subir a Hallgrímskirkja","Vista de los techos de colores de Reykjavík"],
   ["libre","Un día sin ningún plan","Dejar que el día decida"],
   ["hermanas","Las hermanas juntas en el agua termal","Foto desde afuera, que no se den cuenta"],
-  ["tres","Foto de las tres frente a una cascada","Con trípode o pidiéndole a alguien"],
-  ["brindis","Un brindis de las tres","Skál. Por el viaje y por las que no están"]
+  ["tres","Foto de las cuatro frente a una cascada","Con trípode o pidiéndole a alguien"],
+  ["brindis","Un brindis de las cuatro","Skál. Por el viaje y por las que no están"]
 ];
 const DAYS_TEMPLATE = [
   ["Llegada","Keflavík → Reykjavík · Hotel Klettur","9:25 aterriza Icelandair 686. Flybus a la estación de buses y traslado al hotel (sin guía). Check-in desde las 14:00: dejen maletas y caminen por Laugavegur y el puerto viejo. Cena por su cuenta; si hay energía, piscina geotermal local (Sundhöllin, a 5 min del hotel). Noche en Reykjavík."],
@@ -416,7 +418,7 @@ function renderHoy(){
     html=`<div class="eyebrow">Faltan ${-idx} día${idx===-1?"":"s"}</div><h2>El ${fmtDate(start,{weekday:"long",day:"numeric",month:"long"})} aterrizan</h2><p class="muted">Mientras tanto: marca la lista de equipaje en Útil, agrega a la lista 200 % lo que a cada una le ilusiona, y confirma con el corresponsal la hora de recogida del último día.</p>`;
   } else if(idx>=n){
     const done=Object.values(state.bucket).filter(Boolean).length;
-    html=`<div class="eyebrow">Después del viaje</div><h2>Ya volvieron las tres</h2><p class="muted">Vivieron ${done} cosas de la lista y escribieron ${Object.keys(state.journal).length} días de diario. Léanlo las tres un domingo.</p>`;
+    html=`<div class="eyebrow">Después del viaje</div><h2>Ya volvieron</h2><p class="muted">Vivieron ${done} cosas de la lista y escribieron ${Object.keys(state.journal).length} días de diario. Léanlo con mamá y Claudia un domingo.</p>`;
   } else {
     const d=state.days[idx];
     html=`<div class="eyebrow">Día ${idx+1} de ${n} · ${fmtDate(addDays(start,idx))}</div><h2>${esc(d.title)||"Sin título"}</h2><p class="muted" style="margin-top:.2rem">${esc(d.place)}</p><p style="margin-top:.6rem">${esc(d.plan)}</p>`;
