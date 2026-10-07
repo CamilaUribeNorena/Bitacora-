@@ -83,7 +83,7 @@ section.tab[hidden]{display:none}
 .info a{color:var(--accent)}
 .status{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-top:.3rem}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
-nav.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:.4rem 0;border-radius:10px;font-size:.72rem;font-weight:600;color:var(--muted)}
+nav.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:.4rem 0;border-radius:10px;font-size:.68rem;font-weight:600;color:var(--muted)}
 nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 nav.tabs button.on{color:var(--accent)}
 .journal-nav{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
@@ -173,6 +173,22 @@ nav.tabs button.on{color:var(--accent)}
     </div>
   </section>
 
+  <!-- MALETA -->
+  <section class="tab" id="tab-maleta" hidden>
+    <div class="stack">
+      <div class="card">
+        <div class="eyebrow">Maleta</div>
+        <h2>Lista de equipaje</h2>
+        <p class="muted" style="font-size:.88rem">Según la guía de la agencia. Capa térmica + polar + impermeable es la fórmula. Agrega lo tuyo abajo.</p>
+        <div class="progress"><i id="pack-bar"></i></div>
+        <div id="pack" style="margin-top:.6rem"></div>
+        <div class="field"><label for="pack-new">Agregar a la maleta</label>
+          <div style="display:flex;gap:8px"><input type="text" id="pack-new" placeholder="Ej. Medicamentos de mamá"><button class="btn primary" id="pack-add">Añadir</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ÚTIL -->
   <section class="tab" id="tab-util" hidden>
     <div class="stack">
@@ -215,13 +231,6 @@ nav.tabs button.on{color:var(--accent)}
         </dl>
       </div>
       <div class="card">
-        <div class="eyebrow">Maleta</div>
-        <h2>Lista de equipaje</h2>
-        <p class="muted" style="font-size:.88rem">Según la guía de la agencia. Capa térmica + polar + impermeable es la fórmula.</p>
-        <div class="progress"><i id="pack-bar"></i></div>
-        <div id="pack" style="margin-top:.6rem"></div>
-      </div>
-      <div class="card">
         <div class="eyebrow">Copenhague · 17 al 21</div>
         <dl class="info">
           <dt>Hora y moneda</dt><dd>2 horas adelante de Islandia, 7 de Colombia. Corona danesa (DKK); todo con tarjeta, casi nadie usa efectivo. Propina no esperada.</dd>
@@ -250,6 +259,7 @@ nav.tabs button.on{color:var(--accent)}
   <button data-tab="plan"><svg viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Plan</button>
   <button data-tab="mama"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg>Mamá</button>
   <button data-tab="diario"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Diario</button>
+  <button data-tab="maleta"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg>Maleta</button>
   <button data-tab="util"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>Útil</button>
 </nav>
 <div class="toast" id="toast"></div>
@@ -386,7 +396,7 @@ const PACK = [
 const DEFAULT = ()=>({
   start:"2026-10-09",
   days: DAYS_TEMPLATE.map(d=>({title:d[0],place:d[1],plan:d[2]})),
-  bucket:{}, bucketCustom:[], qDone:{}, retoDone:{}, journal:{}, pack:{}, v:2
+  bucket:{}, bucketCustom:[], qDone:{}, retoDone:{}, journal:{}, pack:{}, packCustom:[], v:2
 });
 let state = DEFAULT();
 let db = null, saving=false, pendingSave=false, saveTimer=null, loaded=false;
@@ -434,11 +444,15 @@ function tickClock(){
 // ---------- Render ----------
 function renderAll(){ renderHoy(); renderPlan(); renderMama(); renderDiario(); renderPack(); }
 function renderPack(){
-  const done=PACK.filter((_,i)=>state.pack[i]).length;
-  $("#pack-bar").style.width=Math.round(done/PACK.length*100)+"%";
+  const custom=state.packCustom||[];
+  const total=PACK.length+custom.length;
+  const done=PACK.filter((_,i)=>state.pack[i]).length+custom.filter((_,i)=>state.pack["c"+i]).length;
+  $("#pack-bar").style.width=(total?Math.round(done/total*100):0)+"%";
   let cat=""; let out="";
   PACK.forEach((it,i)=>{ if(it[0]!==cat){ cat=it[0]; out+=`<div class="eyebrow" style="margin-top:.8rem">${esc(cat)}</div>`; }
     out+=`<div class="check${state.pack[i]?" on":""}"><input type="checkbox" id="pk-${i}" data-pk="${i}" ${state.pack[i]?"checked":""}><label for="pk-${i}">${esc(it[1])}${it[2]?`<span class="note">${esc(it[2])}</span>`:""}</label></div>`; });
+  if(custom.length){ out+=`<div class="eyebrow" style="margin-top:.8rem">Mío</div>`;
+    custom.forEach((t,i)=>{ const k="c"+i; out+=`<div class="check${state.pack[k]?" on":""}"><input type="checkbox" id="pk-${k}" data-pk="${k}" ${state.pack[k]?"checked":""}><label for="pk-${k}">${esc(t)}</label><button class="btn small" data-pkdel="${i}" aria-label="Quitar">×</button></div>`; }); }
   $("#pack").innerHTML=out;
 }
 
@@ -446,7 +460,7 @@ function renderHoy(){
   const idx=dayIndexToday(); const n=state.days.length; const start=parseDate(state.start);
   let html="";
   if(idx<0){
-    html=`<div class="eyebrow">Faltan ${-idx} día${idx===-1?"":"s"}</div><h2>El ${fmtDate(start,{weekday:"long",day:"numeric",month:"long"})} aterrizan</h2><p class="muted">Mientras tanto: marca la lista de equipaje en Útil, agrega a la lista 200 % lo que a cada una le ilusiona, y confirma con el corresponsal la hora de recogida del último día.</p>`;
+    html=`<div class="eyebrow">Faltan ${-idx} día${idx===-1?"":"s"}</div><h2>El ${fmtDate(start,{weekday:"long",day:"numeric",month:"long"})} aterrizan</h2><p class="muted">Mientras tanto: marca la lista en la pestaña Maleta, agrega a la lista 200 % lo que a cada una le ilusiona, y confirma con el corresponsal la hora de recogida del último día.</p>`;
   } else if(idx>=n){
     const done=Object.values(state.bucket).filter(Boolean).length;
     html=`<div class="eyebrow">Después del viaje</div><h2>Ya volvieron</h2><p class="muted">Vivieron ${done} cosas de la lista y escribieron ${Object.keys(state.journal).length} días de diario. Léanlo con mamá y Claudia un domingo.</p>`;
@@ -523,6 +537,8 @@ document.addEventListener("click",e=>{
   if(b.dataset.del!==undefined){ const i=+b.dataset.del; if(b.textContent!=="¿Seguro?"){ b.textContent="¿Seguro?"; setTimeout(()=>{b.textContent="Borrar día"},2500); return; } state.days.splice(i,1); const nj={}; Object.keys(state.journal).forEach(k=>{k=+k; if(k<i) nj[k]=state.journal[k]; else if(k>i) nj[k-1]=state.journal[k];}); state.journal=nj; if(!state.days.length) state.days.push({title:"",place:"",plan:""}); scheduleSave(); renderAll(); return; }
   if(b.id==="bucket-add"){ const v=$("#bucket-new").value.trim(); if(!v) return; state.bucketCustom.push(v); $("#bucket-new").value=""; scheduleSave(); renderMama(); renderHoy(); return; }
   if(b.dataset.bdel!==undefined){ const i=+b.dataset.bdel; state.bucketCustom.splice(i,1); const nb={}; Object.keys(state.bucket).forEach(k=>{ if(!k.startsWith("c")) nb[k]=state.bucket[k]; else { const ci=+k.slice(1); if(ci<i) nb[k]=state.bucket[k]; else if(ci>i) nb["c"+(ci-1)]=state.bucket[k]; } }); state.bucket=nb; scheduleSave(); renderMama(); renderHoy(); return; }
+  if(b.id==="pack-add"){ const v=$("#pack-new").value.trim(); if(!v) return; (state.packCustom=state.packCustom||[]).push(v); $("#pack-new").value=""; scheduleSave(); renderPack(); return; }
+  if(b.dataset.pkdel!==undefined){ const i=+b.dataset.pkdel; state.packCustom.splice(i,1); const np={}; Object.keys(state.pack).forEach(k=>{ if(!String(k).startsWith("c")) np[k]=state.pack[k]; else { const ci=+k.slice(1); if(ci<i) np[k]=state.pack[k]; else if(ci>i) np["c"+(ci-1)]=state.pack[k]; } }); state.pack=np; scheduleSave(); renderPack(); return; }
   if(b.dataset.j!==undefined){ journalDay=+b.dataset.j; renderDiario(); return; }
   if(b.dataset.p!==undefined){ const j=state.journal[journalDay]||(state.journal[journalDay]={}); j.presence=(j.presence===+b.dataset.p)?null:+b.dataset.p; scheduleSave(); renderDiario(); return; }
 });
@@ -542,7 +558,7 @@ document.addEventListener("input",e=>{
 });
 document.addEventListener("input",e=>{ const t=e.target; if(t.dataset.jf||(t.dataset.f&&t.closest(".day"))) clearTimeout(t._rt), t._rt=setTimeout(()=>{ if(t.dataset.jf) renderJournalNavOnly(); },900); });
 function renderJournalNavOnly(){ const nav=$("#journal-nav"); if(!nav) return; nav.querySelectorAll("button").forEach(b=>{const j=state.journal[+b.dataset.j]; b.classList.toggle("has",!!(j&&(j.best||j.mom||j.moment)));}); }
-document.addEventListener("keydown",e=>{ if(e.key==="Enter"&&e.target.id==="bucket-new"){ e.preventDefault(); $("#bucket-add").click(); } });
+document.addEventListener("keydown",e=>{ if(e.key==="Enter"&&e.target.id==="bucket-new"){ e.preventDefault(); $("#bucket-add").click(); } if(e.key==="Enter"&&e.target.id==="pack-new"){ e.preventDefault(); $("#pack-add").click(); } });
 
 function showTab(name){
   document.querySelectorAll("section.tab").forEach(s=>s.hidden=(s.id!=="tab-"+name));
